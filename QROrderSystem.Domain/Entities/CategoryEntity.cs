@@ -1,8 +1,8 @@
 namespace QROrderSystem.Domain.Entities;
 
-public class Category : BaseEntity
+public class CategoryEntity : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
-    public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+    public virtual ICollection<ProductEntity> Products { get; set; } = new List<ProductEntity>();
 }
