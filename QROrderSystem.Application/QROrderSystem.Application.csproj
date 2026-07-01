@@ -11,10 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\" />
-      <Folder Include="Interfaces\" />
+      <Folder Include="Features\Locations\" />
       <Folder Include="Repositories\" />
-      <Folder Include="Services\" />
     </ItemGroup>
 
     <ItemGroup>

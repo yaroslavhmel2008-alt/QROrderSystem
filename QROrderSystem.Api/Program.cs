@@ -1,4 +1,17 @@
+using System.Reflection;
+using MediatR;
+using FluentValidation;
+using QROrderSystem.Application.Common.Behaviors; 
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(Assembly.Load("QROrderSystem.Application"));
+    
+    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+});
+
+builder.Services.AddValidatorsFromAssembly(Assembly.Load("QROrderSystem.Application"));
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
