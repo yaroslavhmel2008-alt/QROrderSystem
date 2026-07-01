@@ -14,4 +14,9 @@ public class OrderItemService : IOrderItemService
     {
         throw new NotImplementedException();
     }
+
+    public Task<bool> DeleteOrderItemAsync(Guid Id, Guid ProductId)
+    {
+        throw new NotImplementedException();
+    }
 }
