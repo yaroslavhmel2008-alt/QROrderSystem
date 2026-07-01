@@ -9,4 +9,10 @@ public class ProductService : IProductService
     {
         throw new NotImplementedException();
     }
+
+    public Task<ProductDto> AddProductAsync(Guid categoryId, string name, string? description, decimal price, string? imageUrl,
+        bool isAvailable)
+    {
+        throw new NotImplementedException();
+    }
 }
