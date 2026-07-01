@@ -6,4 +6,6 @@ public interface IProductService
 {
     Task<ProductDto> GetProductByIdAsync(Guid productId);
     Task<ProductDto> AddProductAsync(Guid categoryId, string name, string? description, decimal price, string? imageUrl, bool isAvailable);
+    Task<IEnumerable<ProductDto>> GetProductListAsync();
+    Task<ProductDto> UpdateProductAsync(Guid Id, Guid categoryId, string name, string? description, decimal price, string? imageUrl, bool isAvailable);
 }
