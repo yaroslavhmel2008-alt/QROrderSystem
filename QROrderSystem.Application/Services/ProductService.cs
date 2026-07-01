@@ -15,4 +15,15 @@ public class ProductService : IProductService
     {
         throw new NotImplementedException();
     }
+
+    public Task<IEnumerable<ProductDto>> GetProductListAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ProductDto> UpdateProductAsync(Guid Id, Guid categoryId, string name, string? description, decimal price, string? imageUrl,
+        bool isAvailable)
+    {
+        throw new NotImplementedException();
+    }
 }
