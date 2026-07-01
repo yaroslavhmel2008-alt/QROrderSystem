@@ -26,4 +26,14 @@ public class ProductService : IProductService
     {
         throw new NotImplementedException();
     }
+
+    public Task<bool> DeleteProductAsync(Guid Id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(Guid categoryId)
+    {
+        throw new NotImplementedException();
+    }
 }
