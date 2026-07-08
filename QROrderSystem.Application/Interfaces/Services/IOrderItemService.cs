@@ -1,7 +1,7 @@
 using QROrderSystem.Application.DTOs;
 using QROrderSystem.Application.Features.AddOrderItemToOrderCommand;
 
-namespace QROrderSystem.Application.Interfaces;
+namespace QROrderSystem.Application.Interfaces.Services;
 
 public interface IOrderItemService
 {

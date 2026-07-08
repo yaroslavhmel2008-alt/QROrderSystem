@@ -1,6 +1,6 @@
 using QROrderSystem.Application.DTOs;
 
-namespace QROrderSystem.Application.Interfaces;
+namespace QROrderSystem.Application.Interfaces.Services;
 
 public interface IProductService
 {

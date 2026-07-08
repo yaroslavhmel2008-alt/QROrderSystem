@@ -9,6 +9,12 @@
     <ItemGroup>
       <ProjectReference Include="..\QROrderSystem.Application\QROrderSystem.Application.csproj" />
       <ProjectReference Include="..\QROrderSystem.Domain\QROrderSystem.Domain.csproj" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.28" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
     </ItemGroup>
 
 </Project>

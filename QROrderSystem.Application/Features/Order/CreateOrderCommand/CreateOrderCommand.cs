@@ -8,4 +8,5 @@ namespace QROrderSystem.Application.Features.CreateOrderCommand;
 public class CreateOrderCommand : IRequest<OrderDto>
 {
     public Guid LocationId { get; set; }
+    public List<OrderItemDto> Items { get; set; } = new();
 }
