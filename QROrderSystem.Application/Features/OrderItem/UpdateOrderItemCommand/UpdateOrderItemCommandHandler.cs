@@ -1,6 +1,6 @@
 using MediatR;
 using QROrderSystem.Application.DTOs;
-using QROrderSystem.Application.Interfaces;
+using QROrderSystem.Application.Interfaces.Services;
 
 namespace QROrderSystem.Application.Features.UpdateOrderItemCommand;
 

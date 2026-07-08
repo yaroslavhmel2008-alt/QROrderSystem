@@ -1,26 +1,64 @@
 using System.Reflection;
 using MediatR;
 using FluentValidation;
-using QROrderSystem.Application.Common.Behaviors; 
+using Microsoft.EntityFrameworkCore;
+using QROrderSystem.Application.Common.Behaviors;
+using QROrderSystem.Application.Interfaces.Persistence;
+using QROrderSystem.Application.Interfaces.Repositories;
+using QROrderSystem.Application.Interfaces.Services;
+using QROrderSystem.Infrastructure.Services; 
+using QROrderSystem.Application.Mappings;
+using QROrderSystem.Infrastructure.Middleware;
+using QROrderSystem.Infrastructure.Persistence;
+using QROrderSystem.Infrastructure.Repositories;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 1. ДОДАЄМО КОНТРОЛЕРИ
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(Assembly.Load("QROrderSystem.Application"));
-    
     cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 });
 
 builder.Services.AddValidatorsFromAssembly(Assembly.Load("QROrderSystem.Application"));
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+// 2. ПРАВИЛЬНА РЕЄСТРАЦІЯ БАЗИ ДАНИХ
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    // Рядок підключення має бути у файлі appsettings.json під назвою "DefaultConnection"
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+// 3. РЕЄСТРАЦІЯ СЕРВІСІВ
+builder.Services.AddScoped<ICategoryService, CategoryService>(); 
+builder.Services.AddScoped<ILocationService, LocationService>(); 
+builder.Services.AddScoped<IProductService, ProductService>();   
+builder.Services.AddScoped<IOrderService, OrderService>();       
+builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+
+// Реєстрація Репозиторіїв та UnitOfWork
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -29,29 +67,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
+// 4. МАРШРУТИЗАТОР
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

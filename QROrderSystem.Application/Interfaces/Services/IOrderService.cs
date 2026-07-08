@@ -1,10 +1,10 @@
 using QROrderSystem.Application.DTOs;
 
-namespace QROrderSystem.Application.Interfaces;
+namespace QROrderSystem.Application.Interfaces.Services;
 
 public interface IOrderService
 {
-    Task<OrderDto> CreateOrderAsync(Guid LocationId);
+    Task<OrderDto> CreateOrderAsync(Guid LocationId,  List<OrderItemDto> Items);
     Task<OrderDto> GetOrderByIdAsync(Guid id);
     Task<OrderDto> UpdateOrderAsync(Guid id, Guid LocationId);
     Task<IEnumerable<OrderDto>> GetOrderListAsync();

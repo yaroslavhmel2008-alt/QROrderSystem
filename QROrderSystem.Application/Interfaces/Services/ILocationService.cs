@@ -1,7 +1,7 @@
 using QROrderSystem.Application.DTOs;
 using QROrderSystem.Domain.Enums;
 
-namespace QROrderSystem.Application.Interfaces;
+namespace QROrderSystem.Application.Interfaces.Services;
 
 public interface ILocationService
 {

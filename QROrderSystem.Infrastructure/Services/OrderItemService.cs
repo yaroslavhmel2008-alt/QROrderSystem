@@ -1,7 +1,7 @@
 using QROrderSystem.Application.DTOs;
-using QROrderSystem.Application.Interfaces;
+using QROrderSystem.Application.Interfaces.Services;
 
-namespace QROrderSystem.Application.Services;
+namespace QROrderSystem.Infrastructure.Services;
 
 public class OrderItemService : IOrderItemService
 {
