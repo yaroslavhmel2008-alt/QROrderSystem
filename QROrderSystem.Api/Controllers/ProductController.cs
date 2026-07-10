@@ -49,13 +49,13 @@ public class ProductController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteProductAsync(Guid Id)
+    public async Task<IActionResult> DeleteProductAsync(Guid id)
     {
-        var result = await _mediator.Send(new DeleteProductCommand { Id = Id });
+        var result = await _mediator.Send(new DeleteProductCommand { Id = id });
         return Ok(result);
     }
 
-    [HttpGet("category/{categoryId}")]
+    [HttpGet("category/{CategoryId}")]
     public async Task<IActionResult> GetProductByCategoryIdAsync(Guid CategoryId)
     {
         var result = await _mediator.Send(new GetProductsByCategoryCommand { CategoryId = CategoryId });

@@ -52,13 +52,15 @@ public class OrderService : IOrderService
 
             var newOrderItem = new OrderItemEntity()
             {
+                Id = Guid.NewGuid(),
+                OrderId = newOrder.Id,
                 ProductId = product.Id,
                 Quantity = item.Quantity,
                 UnitPrice = product.Price,
             };
             
             newOrder.OrderItems.Add(newOrderItem);
-            totalAmount += item.Quantity * item.UnitPrice;
+            totalAmount += item.Quantity * product.Price;
         }
         newOrder.TotalAmount = totalAmount;
         
@@ -68,14 +70,31 @@ public class OrderService : IOrderService
         return _mapper.Map<OrderDto>(newOrder);
     }
 
-    public Task<OrderDto> GetOrderByIdAsync(Guid id)
+    public async Task<OrderDto> GetOrderByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var order = await _orderRepository.GetOrderByIdAsync(id);
+        if (order == null)
+        {
+            _logger.LogWarning("Order with ID {OrderId} not found during order retrieval", id);
+            throw new NotFoundException("Order", id);
+        }
+        
+        return _mapper.Map<OrderDto>(order);
     }
 
-    public Task<OrderDto> UpdateOrderAsync(Guid id, Guid LocationId)
+    public async Task<OrderDto> UpdateOrderAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var existingOrder = await _orderRepository.GetOrderByIdAsync(id);
+        if (existingOrder == null)
+        {
+            _logger.LogWarning("Order with ID {OrderId} not found during order update", id);
+            throw new NotFoundException("Order", id);
+        }
+        
+        await _orderRepository.UpdateOrderAsync(existingOrder);
+        await _unitOfWork.SaveChangesAsync();
+        _logger.LogInformation("Order {OrderId} updated successfully", id);
+        return _mapper.Map<OrderDto>(existingOrder);
     }
     
     public async Task<IEnumerable<OrderDto>> GetOrderListAsync()
@@ -87,9 +106,19 @@ public class OrderService : IOrderService
         return _mapper.Map<IEnumerable<OrderDto>>(orderList);
     }
 
-    public Task<bool> DeleteOrderAsync(Guid id)
+    public async Task<bool> DeleteOrderAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var order = await _orderRepository.GetOrderByIdAsync(id);
+        if (order == null)
+        {
+            _logger.LogWarning("Order with ID {OrderId} not found during order deletion", id);
+            throw new NotFoundException("Order", id);
+        }
+        
+        var isDeleted = await _orderRepository.DeleteOrderAsync(order);
+        await _unitOfWork.SaveChangesAsync();
+        _logger.LogInformation("Order with ID {OrderId} deleted successfully", id);
+        return isDeleted;
     }
 }
 

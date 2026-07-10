@@ -23,4 +23,26 @@ public class LocationRepository : ILocationRepository
         await _context.Locations.AddAsync(locationEntity);
         return locationEntity;
     }
+
+    public async Task<IEnumerable<LocationEntity>> GetLocationListAsync()
+    {
+        return await _context.Locations.ToListAsync();
+    }
+
+    public async Task<LocationEntity?> GetLocationByIdAsync(Guid Id)
+    {
+        return await _context.Locations.FindAsync(Id);
+    }
+
+    public Task<LocationEntity?> UpdateLocationAsync(LocationEntity locationEntity)
+    {
+        _context.Locations.Update(locationEntity);
+        return Task.FromResult(locationEntity);
+    }
+
+    public Task<bool> DeleteLocationAsync(LocationEntity locationEntity)
+    {
+        _context.Locations.Remove(locationEntity);
+        return Task.FromResult(true);
+    }
 }

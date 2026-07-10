@@ -24,9 +24,15 @@ public class ProductService : IProductService
         _logger = logger;
     } 
     
-    public Task<ProductDto> GetProductByIdAsync(Guid productId)
+    public async Task<ProductDto> GetProductByIdAsync(Guid productId)
     {
-        throw new NotImplementedException();
+        var product = await _productRepository.GetProductByIdAsync(productId);
+        if (product == null)
+        {
+            _logger.LogWarning("Product with ID {Id} was not found", productId);
+            throw new NotFoundException("Product", productId);
+        }
+        return _mapper.Map<ProductDto>(product);
     }
 
     public async Task<ProductDto> AddProductAsync(Guid categoryId, string name, string? description, decimal price, string? imageUrl,
@@ -93,9 +99,18 @@ public class ProductService : IProductService
         return _mapper.Map<ProductDto>(productToUpdate);
     }
 
-    public Task<bool> DeleteProductAsync(Guid Id)
+    public async Task<bool> DeleteProductAsync(Guid Id)
     {
-        throw new NotImplementedException();
+        var product =  await _productRepository.GetProductByIdAsync(Id);
+        if (product == null)
+        {
+            _logger.LogWarning("Product with ID {Id} was not found", Id);
+            throw new NotFoundException("Product", Id);
+        }
+        
+        var isDeleted = await _productRepository.DeleteProductByIdAsync(product);
+        await _unitOfWork.SaveChangesAsync();
+        return isDeleted;
     }
 
     public async Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(Guid categoryId)

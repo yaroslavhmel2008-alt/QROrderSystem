@@ -10,5 +10,4 @@ public class PaymentEntity : BaseEntity
     public string? ExternalTransactionId { get; set; }
     public string Provider { get; set; } = string.Empty;
     
-    public virtual OrderEntity OrderEntity { get; set; } = null!;
 }

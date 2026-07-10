@@ -46,23 +46,58 @@ public class LocationService : ILocationService
         return _mapper.Map<LocationDto>(newLocation);
     }
 
-    public Task<IEnumerable<LocationDto>> GetLocationListAsync()
+    public async Task<IEnumerable<LocationDto>> GetLocationListAsync()
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("GetLocationListAsync");
+        var locations = await _locationRepository.GetLocationListAsync();
+        var locationList = locations.ToList();
+        _logger.LogInformation("Successfully retrieved {Count} locations", locationList.Count);
+        return _mapper.Map<IEnumerable<LocationDto>>(locationList);
     }
 
-    public Task<LocationDto> UpdateLocationAsync(Guid Id, string Name, LocationType LocationType, bool IsActive)
+    public async Task<LocationDto> UpdateLocationAsync(Guid Id, string Name, LocationType LocationType, bool IsActive)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("UpdateLocationAsync");
+        var existingLocation = await _locationRepository.GetLocationByIdAsync(Id);
+        if (existingLocation == null)
+        {
+            _logger.LogWarning("Location with ID {Id} not found", Id);
+            throw new NotFoundException("Location", $"Location with ID '{Id}' not found");
+        }
+        
+        existingLocation.Name = Name;
+        existingLocation.Type = LocationType;
+        existingLocation.IsActive = IsActive;
+        
+        var location = await _locationRepository.UpdateLocationAsync(existingLocation);
+        await _unitOfWork.SaveChangesAsync();
+        _logger.LogInformation("Location {Name} (ID: {Id}) updated successfully", Name, Id);
+        return _mapper.Map<LocationDto>(location);
     }
 
-    public Task<bool> DeleteLocationAsync(Guid Id)
+    public async Task<bool> DeleteLocationAsync(Guid Id)
     {
-        throw new NotImplementedException();
+        var location = await _locationRepository.GetLocationByIdAsync(Id);
+        if (location == null)
+        {
+            _logger.LogWarning("Location with ID {Id} not found", Id);
+            throw new NotFoundException("Location", $"Location with ID '{Id}' not found");
+        }
+        var isDeleted = await _locationRepository.DeleteLocationAsync(location);
+        await _unitOfWork.SaveChangesAsync();
+        _logger.LogInformation("Location with ID {Id} deleted successfully", Id);
+        return isDeleted;
     }
 
-    public Task<LocationDto> GetLocationByIdAsync(Guid Id)
+    public async Task<LocationDto> GetLocationByIdAsync(Guid Id)
     {
-        throw new NotImplementedException();
+        var location = await _locationRepository.GetLocationByIdAsync(Id);
+        if (location == null)
+        {
+            _logger.LogWarning("Location with ID {Id} not found", Id);
+            throw new NotFoundException("Location", $"Location with ID '{Id}' not found");
+        }
+        
+        return _mapper.Map<LocationDto>(location);
     }
 }

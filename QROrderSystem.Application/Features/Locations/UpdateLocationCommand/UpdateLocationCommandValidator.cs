@@ -16,6 +16,7 @@ public class UpdateLocationCommandValidator : AbstractValidator<UpdateLocationCo
             .NotEmpty().WithMessage("Name cannot be empty")
             .MaximumLength(100).WithMessage("Name is too long");
         RuleFor(input => input.Type)
-            .NotEmpty().WithMessage("Type cannot be empty");
+            .IsInEnum()
+            .WithMessage("Invalid location type");
     }
 }

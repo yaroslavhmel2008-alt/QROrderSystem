@@ -7,5 +7,5 @@ public class LocationEntity : BaseEntity
     public string Name { get; set; } = string.Empty;
     public LocationType Type { get; set; }
     public bool IsActive { get; set; } = true;
-    public virtual ICollection<OrderEntity> Orders { get; set; } = new List<OrderEntity>();
+    public ICollection<OrderEntity> Orders { get; set; } = new List<OrderEntity>();
 }
