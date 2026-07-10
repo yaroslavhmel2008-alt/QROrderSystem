@@ -31,7 +31,7 @@ public class LocationController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{Id}")]
     public async Task<IActionResult> UpdateLocationAsync(Guid Id, [FromBody] UpdateLocationCommand command)
     {
         if (Id != command.Id)

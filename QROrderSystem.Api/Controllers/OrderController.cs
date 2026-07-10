@@ -33,9 +33,9 @@ public class OrderController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetOrderByIdAsync(Guid Id)
+    public async Task<IActionResult> GetOrderByIdAsync(Guid id)
     {
-        var result = await _mediator.Send(new GetOrderByIdCommand { Id = Id });
+        var result = await _mediator.Send(new GetOrderByIdCommand { Id = id });
         if (result == null)
         {
             return NotFound();

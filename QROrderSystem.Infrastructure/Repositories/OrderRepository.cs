@@ -14,7 +14,7 @@ public class OrderRepository : IOrderRepository
     }
     public async Task<IEnumerable<OrderEntity>> GetOrderListAsync()
     {
-        return await _context.Orders.ToListAsync();
+        return await _context.Orders.Include(o => o.OrderItems).ToListAsync();
     }
 
     public async Task<OrderEntity> AddOrderAsync(OrderEntity orderEntity)
@@ -28,5 +28,17 @@ public class OrderRepository : IOrderRepository
         return await _context.Orders
             .Include(o => o.OrderItems) 
             .FirstOrDefaultAsync(o => o.Id == id);
+    }
+
+    public Task<OrderEntity?> UpdateOrderAsync(OrderEntity orderEntity)
+    {
+        _context.Orders.Update(orderEntity);
+        return Task.FromResult(orderEntity);
+    }
+
+    public Task<bool> DeleteOrderAsync(OrderEntity orderEntity)
+    {
+        _context.Orders.Remove(orderEntity);
+        return Task.FromResult(true);
     }
 }

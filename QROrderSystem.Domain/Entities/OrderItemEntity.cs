@@ -7,6 +7,4 @@ public class OrderItemEntity : BaseEntity
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
     
-    public virtual OrderEntity OrderEntity { get; set; } = null!;
-    public virtual ProductEntity ProductEntity { get; set; } = null!;
 }

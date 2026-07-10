@@ -20,7 +20,7 @@ public class UpdateOrderCommandHandler : IRequestHandler<UpdateOrderCommand, Ord
     public async Task<OrderDto> Handle(UpdateOrderCommand command, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Attempting to update order with ID: {OrderId} to new location ID: {LocationId}", command.Id, command.LocationId);
-        var order = await _orderService.UpdateOrderAsync(command.Id, command.LocationId);
+        var order = await _orderService.UpdateOrderAsync(command.Id);
         if (order == null)
         {
             _logger.LogWarning("Order with ID: {OrderId} was not found", command.Id);
