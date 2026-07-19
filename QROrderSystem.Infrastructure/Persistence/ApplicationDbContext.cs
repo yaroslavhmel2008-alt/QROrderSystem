@@ -16,5 +16,10 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<ProductEntity>()
+            .HasOne(p => p.Category)
+            .WithMany(c => c.Products)
+            .HasForeignKey(p => p.CategoryId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

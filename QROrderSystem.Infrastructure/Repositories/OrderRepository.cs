@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using QROrderSystem.Application.Interfaces.Repositories;
 using QROrderSystem.Domain.Entities;
 using QROrderSystem.Infrastructure.Persistence;
+
 
 namespace QROrderSystem.Infrastructure.Repositories;
 
@@ -14,7 +16,8 @@ public class OrderRepository : IOrderRepository
     }
     public async Task<IEnumerable<OrderEntity>> GetOrderListAsync()
     {
-        return await _context.Orders.Include(o => o.OrderItems).ToListAsync();
+        return await _context.Orders
+            .Include(o => o.OrderItems).ThenInclude(oi => oi.ProductEntity).Include(o => o.LocationEntity).ToListAsync();
     }
 
     public async Task<OrderEntity> AddOrderAsync(OrderEntity orderEntity)
@@ -26,7 +29,8 @@ public class OrderRepository : IOrderRepository
     public async Task<OrderEntity?> GetOrderByIdAsync(Guid id)
     {
         return await _context.Orders
-            .Include(o => o.OrderItems) 
+            .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.ProductEntity)
             .FirstOrDefaultAsync(o => o.Id == id);
     }
 

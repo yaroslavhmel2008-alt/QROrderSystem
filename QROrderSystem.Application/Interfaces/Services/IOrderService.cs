@@ -1,4 +1,5 @@
 using QROrderSystem.Application.DTOs;
+using QROrderSystem.Domain.Enums;
 
 namespace QROrderSystem.Application.Interfaces.Services;
 
@@ -9,4 +10,5 @@ public interface IOrderService
     Task<OrderDto> UpdateOrderAsync(Guid id);
     Task<IEnumerable<OrderDto>> GetOrderListAsync();
     Task<bool> DeleteOrderAsync(Guid id);
+    Task<OrderDto> UpdateOrderStatusAsync(Guid id, OrderStatus status);
 }

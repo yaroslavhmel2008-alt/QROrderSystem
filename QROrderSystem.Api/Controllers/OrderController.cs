@@ -1,9 +1,12 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using QROrderSystem.Application.DTOs;
 using QROrderSystem.Application.Features.CreateOrderCommand;
 using QROrderSystem.Application.Features.GetOrderByIdCommand;
 using QROrderSystem.Application.Features.GetOrderListCommand;
 using QROrderSystem.Application.Features.UpdateOrderCommand;
+using QROrderSystem.Application.Features.UpdateOrderStatusCommand;
+using QROrderSystem.Domain.Enums;
 
 namespace QROrderSystem.Api.Controllers;
 
@@ -50,6 +53,19 @@ public class OrderController : ControllerBase
         {
             return BadRequest("The ID in the URL does not match the ID in the request body.");
         }
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+    
+    [HttpPut("{id}/status")]
+    public async Task<ActionResult<OrderDto>> UpdateStatus(Guid id, [FromBody] OrderStatus status)
+    {
+        var command = new UpdateOrderStatusCommand 
+        { 
+            Id = id, 
+            OrderStatus = status 
+        };
+        
         var result = await _mediator.Send(command);
         return Ok(result);
     }

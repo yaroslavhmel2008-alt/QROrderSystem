@@ -1,11 +1,16 @@
 using AutoMapper;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
+
 using QROrderSystem.Application.DTOs;
 using QROrderSystem.Application.Exceptions;
 using QROrderSystem.Application.Interfaces.Persistence;
 using QROrderSystem.Application.Interfaces.Repositories;
 using QROrderSystem.Application.Interfaces.Services;
 using QROrderSystem.Domain.Entities;
+using QROrderSystem.Domain.Enums;
+using QROrderSystem.Infrastructure.Hubs;
+
 
 namespace QROrderSystem.Infrastructure.Services;
 
@@ -16,15 +21,17 @@ public class OrderService : IOrderService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<OrderService> _logger;
+    private readonly IHubContext<OrderHub> _hubContext;
 
     public OrderService(IOrderRepository orderRepository, IProductRepository productRepository, IUnitOfWork unitOfWork, IMapper mapper,
-        ILogger<OrderService> logger)
+        ILogger<OrderService> logger, IHubContext<OrderHub>  hubContext)
     {
         _orderRepository = orderRepository;
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
+        _hubContext = hubContext;
     }
     public async Task<OrderDto> CreateOrderAsync(Guid LocationId, List<OrderItemDto> Items)
     {
@@ -67,7 +74,9 @@ public class OrderService : IOrderService
         await _orderRepository.AddOrderAsync(newOrder);
         await _unitOfWork.SaveChangesAsync();
         _logger.LogInformation("Order {OrderId} created successfully with total amount: {TotalAmount}", newOrder.Id, totalAmount);
-        return _mapper.Map<OrderDto>(newOrder);
+        var orderDto = _mapper.Map<OrderDto>(newOrder);
+        await _hubContext.Clients.All.SendAsync("ReceiveOrder", orderDto);
+        return orderDto;
     }
 
     public async Task<OrderDto> GetOrderByIdAsync(Guid id)
@@ -119,6 +128,35 @@ public class OrderService : IOrderService
         await _unitOfWork.SaveChangesAsync();
         _logger.LogInformation("Order with ID {OrderId} deleted successfully", id);
         return isDeleted;
+    }
+
+    public async Task<OrderDto> UpdateOrderStatusAsync(Guid id, OrderStatus status)
+    {
+        _logger.LogInformation("Attempting to update status for order {OrderId} to {Status}", id, status);
+
+        var existingOrder = await _orderRepository.GetOrderByIdAsync(id);
+        if (existingOrder == null)
+        {
+            _logger.LogWarning("Order with ID {OrderId} not found during status update", id);
+            throw new NotFoundException("Order", id);
+        }
+        
+        existingOrder.Status = status;
+        await _orderRepository.UpdateOrderAsync(existingOrder);
+        await _unitOfWork.SaveChangesAsync();
+
+        var orderDto = _mapper.Map<OrderDto>(existingOrder);
+        
+        var payload = new 
+        {
+            id = orderDto.Id,
+            status = status.ToString() 
+        };
+    
+        _logger.LogInformation("Sending SignalR update: {Payload}", payload);
+        await _hubContext.Clients.All.SendAsync("ReceiveOrderStatusUpdate", payload);
+
+        return orderDto;
     }
 }
 
