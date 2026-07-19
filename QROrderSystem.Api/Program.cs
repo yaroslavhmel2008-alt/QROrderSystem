@@ -12,6 +12,8 @@ using QROrderSystem.Infrastructure.Middleware;
 using QROrderSystem.Infrastructure.Persistence;
 using QROrderSystem.Infrastructure.Repositories;
 using System.Text.Json.Serialization;
+using QROrderSystem.Infrastructure.Hubs;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,7 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        // options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
 builder.Services.AddMediatR(cfg => {
@@ -55,9 +58,29 @@ builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+builder.Services.AddSignalR();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.WithOrigins("http://192.168.0.65:5173", "http://localhost:5173")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
+
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseCors("AllowAll");
+app.MapHub<OrderHub>("/orderHub");
 
 if (app.Environment.IsDevelopment())
 {
@@ -67,7 +90,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// 4. МАРШРУТИЗАТОР
 app.MapControllers();
 
 app.Run();
