@@ -24,8 +24,31 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateProductAsync([FromBody] AddProductCommand command)
+    public async Task<IActionResult> CreateProductAsync([FromForm] AddProductCommand command, IFormFile? imageFile)
     {
+        if (imageFile != null && imageFile.Length > 0)
+        {
+            // Створюємо унікальне ім'я файлу
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+
+            // Шлях до папки wwwroot/images у корені проекту
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(stream);
+            }
+            
+            command.ImageUrl = $"/images/{fileName}";
+        }
+
         var result = await _mediator.Send(command);
         return Ok(result);
     }
@@ -38,12 +61,33 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("{Id}")]
-    public async Task<IActionResult> UpdateProductAsync(Guid Id, [FromBody] UpdateProductCommand command)
+    public async Task<IActionResult> UpdateProductAsync(Guid Id, [FromForm] UpdateProductCommand command, IFormFile? imageFile)
     {
         if (Id != command.Id)
         {
             return BadRequest("The ID in the URL does not match the ID in the request body.");
         }
+
+        if (imageFile != null && imageFile.Length > 0)
+        {
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(stream);
+            }
+        
+            command.ImageUrl = $"/images/{fileName}";
+        }
+
         var result = await _mediator.Send(command);
         return Ok(result);
     }
