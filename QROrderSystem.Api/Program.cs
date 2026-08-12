@@ -17,12 +17,11 @@ using QROrderSystem.Infrastructure.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. ДОДАЄМО КОНТРОЛЕРИ
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        // options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
 builder.Services.AddMediatR(cfg => {
@@ -36,21 +35,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// 2. ПРАВИЛЬНА РЕЄСТРАЦІЯ БАЗИ ДАНИХ
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    // Рядок підключення має бути у файлі appsettings.json під назвою "DefaultConnection"
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// 3. РЕЄСТРАЦІЯ СЕРВІСІВ
 builder.Services.AddScoped<ICategoryService, CategoryService>(); 
 builder.Services.AddScoped<ILocationService, LocationService>(); 
 builder.Services.AddScoped<IProductService, ProductService>();   
 builder.Services.AddScoped<IOrderService, OrderService>();       
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 
-// Реєстрація Репозиторіїв та UnitOfWork
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
@@ -63,7 +58,7 @@ builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
-        policy.WithOrigins("http://192.168.0.65:5173", "http://localhost:5173")
+        policy.SetIsOriginAllowed(_ => true)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -77,6 +72,7 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
+app.UseStaticFiles();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors("AllowAll");
